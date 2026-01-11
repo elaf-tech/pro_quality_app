@@ -1,0 +1,21 @@
+---
+type: rule
+description: "Disallow the use of 'var' and enforce explicit types or 'final'."
+globs: ["lib/**/*.dart"]
+alwaysApply: true
+---
+
+# Rule: Avoid using `var`
+
+You are working on the pro_quality_app project. We have a strict rule to avoid using the `var` keyword to ensure type safety and code clarity.
+
+Always use explicit types (`String`, `int`, `List`, etc.) or `final` for variables.
+
+## ❌ FORBIDDEN
+
+Do not use `var` to declare variables.
+
+```dart
+// ❌ FORBIDDEN
+var name = 'Manus';
+var age = 1;

@@ -1,0 +1,9 @@
+{
+    // يجعل المحرر يقوم بتنسيق الكود تلقائياً عند حفظ الملف
+    "editor.formatOnSave": true,
+
+    // يحدد التنسيق الافتراضي لملفات Dart
+    "[dart]": {
+        "editor.defaultFormatter": "Dart-Code.dart-code"
+    }
+}
