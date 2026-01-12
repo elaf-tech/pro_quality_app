@@ -1,0 +1,45 @@
+name: ProQualityApp CI
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.0'
+          channel: 'stable'
+
+      # 3️⃣ Get dependencies
+      - name: Get Dependencies
+        run: flutter pub get
+
+      # 4️⃣ Format check
+      - name: Code Formatting Check
+        run: dart format --output=none --set-exit-if-changed .
+
+      # 5️⃣ Static analysis
+      - name: Static Analysis
+        run: flutter analyze
+
+      # 6️⃣ Run team rules
+      - name: Team Rules Check
+        run: bash scripts/check_team_rules.sh
+
+      # 7️⃣ Run tests
+      - name: Run Tests
+        run: flutter test
