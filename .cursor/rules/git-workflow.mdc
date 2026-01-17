@@ -1,0 +1,25 @@
+---
+description: Git Workflow Standards
+globs: ""
+---
+
+# Git Workflow
+
+## Branches
+- Use prefixes:
+  - `feature/` for new features.
+  - `fix/` for bug fixes.
+  - `chore/` for maintenance.
+  - `docs/` for documentation.
+
+## Commits
+- Use **Conventional Commits**:
+  - `feat(auth): add login screen`
+  - `fix(api): handle timeout error`
+  - `chore: update dependencies`
+
+## Pull Requests
+- Must include a description.
+- Must include testing steps.
+- Must pass CI checks.
+- Requires at least 1 reviewer.

@@ -1,0 +1,22 @@
+---
+description: Performance Standards
+globs: "**/*.dart"
+---
+
+# Performance Standards
+
+## API
+- **Caching**: Implement caching for static/infrequent data.
+- **Timeouts**: All requests must have a timeout (default 30s).
+
+## Widgets
+- **Const**: Use `const` constructors everywhere possible.
+- **Isolation**: Separate interactive parts into smaller StatefulWidgets to avoid rebuilding entire pages.
+  - *Pattern*: `Page` (Stateful) -> `Body` (Stateless/const) -> `Components`.
+
+## Memory
+- **Disposal**: `TextEditingController`, `StreamController`, `AnimationController` MUST be disposed in `dispose()`.
+- **Images**: Use `CachedNetworkImage` with `memCacheWidth` / `memCacheHeight` to reduce memory usage.
+
+## Lists
+- **ListView.builder**: Use for any list with more than a few items or dynamic length.

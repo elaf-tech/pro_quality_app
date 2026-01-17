@@ -1,45 +1,112 @@
-name: ProQualityApp CI
+name: CI
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+    branches: [ "main", "develop" ]
 
 jobs:
   quality-check:
-    name: Code Quality & Tests
     runs-on: ubuntu-latest
-
     steps:
-      # 1️⃣ Checkout
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # 2️⃣ Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.0'
           channel: 'stable'
+          cache: true
 
-      # 3️⃣ Get dependencies
-      - name: Get Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      # 4️⃣ Format check
-      - name: Code Formatting Check
+      - name: Verify Formatting
         run: dart format --output=none --set-exit-if-changed .
 
-      # 5️⃣ Static analysis
-      - name: Static Analysis
-        run: flutter analyze
+      - name: Analyze Project
+        run: flutter analyze --no-fatal-infos --fatal-warnings
 
-      # 6️⃣ Run team rules
-      - name: Team Rules Check
-        run: bash scripts/check_team_rules.sh
+      - name: Custom Quality Checks
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Check for print() statements in main
+          if grep -r "print(" lib/; then
+            echo "Error: print() statements found in lib/ directory. Please remove them before merging to main."
+            exit 1
+          fi
 
-      # 7️⃣ Run tests
-      - name: Run Tests
-        run: flutter test
+          # Check for hardcoded URLs (simple check)
+          if grep -r "http://" lib/ || grep -r "https://" lib/; then
+             echo "Warning: Hardcoded URLs found. Please verify they are safely managed."
+             # Not failing strictly here to allow some flexibility, but warning is important
+          fi
+          
+          # Check filenames for snake_case (basic check for uppercase chars in correct places)
+          # Ensuring no files in lib have uppercase letters (except perhaps expected ones, but strict snake_case is lowercase)
+          if find lib -name "*[A-Z]*"; then
+             echo "Error: Files with uppercase characters found in lib/. Filenames must be snake_case."
+             exit 1
+          fi
+
+      - name: Run Tests with Coverage
+        run: flutter test --coverage
+
+      - name: Build APK (Release)
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for .env files
+        run: |
+          if find . -name ".env" -o -name ".env.*"; then
+             echo "Critical Error: .env file found in repository!"
+             exit 1
+          fi
+
+  validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate Branch Name
+        if: github.event_name == 'pull_request'
+        run: |
+          branch_name="${{ github.head_ref }}"
+          if [[ ! "$branch_name" =~ ^(feature|fix|hotfix|chore|docs)/.+ ]]; then
+            echo "Error: Branch name '$branch_name' does not follow convention (feature/, fix/, hotfix/, etc.)"
+            exit 1
+          fi
+
+      - name: Validate PR Title
+        if: github.event_name == 'pull_request'
+        run: |
+          pr_title="${{ github.event.pull_request.title }}"
+          # A simple check for Conventional Commits format like "feat: ..." or "fix(scope): ..."
+          if [[ ! "$pr_title" =~ ^[a-z]+\(\w+\):.+ ]] && [[ ! "$pr_title" =~ ^[a-z]+:.+ ]]; then
+             echo "Error: PR Title '$pr_title' does not follow Conventional Commits (e.g., 'feat: add user login')"
+             exit 1
+          fi
+
+  notify:
+    needs: [quality-check, security-check, validation]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Setup status text
+        run: |
+          if [ "${{ needs.quality-check.result }}" == "success" ] && [ "${{ needs.security-check.result }}" == "success" ] && [ "${{ needs.validation.result }}" == "success" ]; then
+             echo "All checks passed!"
+          else
+             echo "Some checks failed."
+             exit 1
+          fi

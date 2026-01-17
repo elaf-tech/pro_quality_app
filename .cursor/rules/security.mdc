@@ -1,0 +1,18 @@
+---
+description: Security Best Practices
+globs: "**/*.dart"
+---
+
+# Security Standards
+
+## Data Protection
+- **NO Secrets in Git**: API Keys, Tokens, Passwords must NOT be committed. use `.env`.
+- **Secure Storage**: Use `flutter_secure_storage` for saving tokens/credentials locally. Never `SharedPreferences` for sensitive data.
+
+## Network
+- **HTTPS Only**: All traffic must be encrypted.
+- **Certificate Pinning**: Recommended for high-security modules.
+
+## Input Validation
+- Validate all user inputs (forms, params) before sending to API.
+- Sanitize inputs to prevent injection attacks (though less common in Flutter, logic flaws exist).

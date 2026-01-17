@@ -1,0 +1,48 @@
+---
+description: Forbidden Practices and Anti-Patterns
+globs: "**/*.dart"
+---
+
+# Forbidden Practices
+
+This rule defines practices that are strictly prohibited in this codebase.
+
+## Quality
+- **NO `print()`**: Use a logger instead.
+  - *Bad*: `print('user login');`
+  - *Good*: `log.info('user login');`
+- **NO Magic Numbers/Strings**: Use constants.
+  - *Bad*: `if (status == 1) ...`
+  - *Good*: `if (status == UserStatus.active) ...`
+- **NO Deep Nesting**: Return early to flatten code.
+  - *Bad*:
+    ```dart
+    if (user != null) {
+      if (user.isActive) {
+        ...
+      }
+    }
+    ```
+  - *Good*:
+    ```dart
+    if (user == null) return;
+    if (!user.isActive) return;
+    ...
+    ```
+
+## API Integration
+- **NO Hardcoded URLs**: Use environment variables or configuration files.
+  - *Bad*: `http.get(Uri.parse('https://api.example.com/users'))`
+  - *Good*: `http.get(Uri.parse('${Config.baseUrl}/users'))`
+- **NO Synchronous HTTP**: All network calls must be async and handled properly.
+- **Error Handling**: Always try-catch network requests.
+
+## Git Workflow
+- **NO Force Push on Main**: Reviewers must block this.
+
+## Performance
+- **NO Unnecessary Builds**: Extract widgets.
+- **Use `const`**: Whenever possible.
+
+## AI Instructions
+If you (the AI) detect these patterns in the code you are editing or reading, you must flag them and suggest the corrected approach immediately.

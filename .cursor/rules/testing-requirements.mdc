@@ -1,0 +1,19 @@
+---
+description: Testing Requirements
+globs: "test/**/*_test.dart"
+---
+
+# Testing Requirements
+
+## Standards
+- **API First**: Test endpoints in Postman/Bruno before implementation.
+- **Coverage**: Aim for **70%** code coverage.
+
+## Types
+- **Unit Tests**: For Logic, Models, Utils.
+- **Widget Tests**: For UI components logic.
+- **Integration Tests**: For critical user flows.
+
+## Structure
+- Mirror `lib/` structure in `test/`.
+- `lib/features/auth/login_screen.dart` -> `test/features/auth/login_screen_test.dart`.

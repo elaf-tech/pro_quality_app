@@ -1,0 +1,22 @@
+---
+description: UI/UX Standards
+globs: "**/*.dart"
+---
+
+# UI/UX Standards
+
+## Architecture
+- **Pattern**: GetX (Controller -> View -> Binding).
+- **Separation**: Logic in Controllers, UI in Views.
+
+## Responsive Design
+- Support various screen sizes.
+- Use `LayoutBuilder` or responsive wrappers/packages.
+
+## Accessibility
+- Add `semanticsLabel` to critical components.
+- Ensure touch targets are at least 48x48.
+
+## Performance in UI
+- Avoid `Opacity` widget for animations (expensive), use `AnimatedOpacity`.
+- Use `const` for static icons/text.
